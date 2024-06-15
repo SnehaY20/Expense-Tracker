@@ -2,17 +2,26 @@ const path = require("path");
 const Expense = require("../models/Expense");
 const Category = require("../models/Category");
 const User = require("../models/User");
+const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("../middleware/async");
 
-// desc     GET all category
-// route    GET /api/v1/category
-// access   private
+// GET all category
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const categories = await Category.find();
-  res.status(200).json({ success: true, data: categories });
+  let categories;
+  if (req.user.role === "admin") {
+    categories = await Category.find().populate({
+      path: "user",
+      select: "name",
+    });
+  } else {
+    categories = await Category.find();
+  }
+  res
+    .status(200)
+    .json({ count: categories.length, success: true, data: categories });
 });
 
-// desc     POSTT create new category
+// desc     POST create new category
 // route    POST /api/v1/category
 // access   private
 exports.createCategory = asyncHandler(async (req, res, next) => {
@@ -28,7 +37,7 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
       .status(400)
       .json({ success: false, message: "Category already exists" });
   }
-  category = await Category.create({ name });
+  category = await Category.create({ name, user: req.user._id });
 
   res.status(201).json({ success: true, data: category });
 });
@@ -46,10 +55,13 @@ exports.getExpensesByCategoryId = asyncHandler(async (req, res, next) => {
   if (!expenses || expenses.length === 0) {
     return res
       .status(404)
-      .json({ success: false, message: `No expenses found for category with ID ${id}` });
+      .json({
+        success: false,
+        message: `No expenses found for category with ID ${id}`,
+      });
   }
 
-  res.status(200).json({ success: true, data: expenses });
+  res.status(200).json({ count: expenses.length, success: true, data: expenses });
 });
 
 // desc     PUT update category by category id

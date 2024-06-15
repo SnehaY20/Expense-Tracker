@@ -5,13 +5,12 @@ const ExpenseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  amount: [
-    {
-      type: Number,
-      required: true,
-      min: [0, "Amount can not be less than 0"],
-    },
-  ],
+  amount: {
+    type: Number,
+    required: true,
+    min: [0, "Amount can not be less than 0"],
+  },
+
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
@@ -26,10 +25,14 @@ const ExpenseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.ObjectId,
     ref: "User",
-    required: false,
+    required: true,
   },
 });
 

@@ -6,6 +6,11 @@ const CategorySchema = new mongoose.Schema({
     required: [true, "Category can not be null"],
     unique: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Category", CategorySchema);
